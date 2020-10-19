@@ -1,0 +1,20 @@
+sudo: required
+dist: xenial
+services:
+  - xvfb
+language: python
+python: 3.8
+addons:
+  chrome: stable
+
+install:
+  - pip install -r requirements.txt
+addons:
+  chrome: stable
+before_script:
+before_install:
+  - wget https://chromedriver.storage.googleapis.com/86.0.4240.22/chromedriver_linux64.zip
+  - unzip chromedriver_linux64.zip
+  - export PATH=$PATH:$PWD
+script: 
+  python test.py
