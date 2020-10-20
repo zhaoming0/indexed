@@ -1,4 +1,4 @@
-sudo apt install samba samba-common git vim tmux python3-pip net-tools -y
+sudo apt install ntpdate samba samba-common git vim tmux python3-pip net-tools -y
 mkdir -p ~/workspace/github
 mkdir -p ~/workspace/share
 sudo chmod -R 777 ~/workspace/
@@ -10,3 +10,5 @@ ssh-keygen -t rsa -C
 git config --global user.name
 git config --global user.email
 
+tzselect
+sudo cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
