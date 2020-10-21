@@ -30,6 +30,7 @@ chrome_options.add_argument('--start-maximized')
 
 driver = webdriver.Chrome(chrome_options=chrome_options)
 driver.get('https://tools.keycdn.com/geo')
+time.sleep(5)
 cityName = (driver.find_element_by_xpath('//*[@id="geoResult"]/div[1]/dl[1]/dd[1]').text)
 zipcode = (driver.find_element_by_xpath('//*[@id="geoResult"]/div[1]/dl[1]/dd[3]').text)
 country = (driver.find_element_by_xpath('//*[@id="geoResult"]/div[1]/dl[1]/dd[4]').text)
@@ -78,6 +79,7 @@ for keys in col1:
         linkStr.insert(asinNum, ASIN + '+')
         linkStr = ''.join(linkStr)
         driver.get('https://www.amazon.com/' + linkStr + '&language=en_US')
+        time.sleep(5)
         soup = BeautifulSoup(driver.page_source, "html.parser")
         asin = soup.find_all(href=re.compile(ASIN))
         if len(asin):
@@ -86,6 +88,7 @@ for keys in col1:
             indexed='N'
         soup=''
         driver.get('https://www.amazon.com/' + bandlinkStr + '&language=en_US')
+        time.sleep(5)
         count = driver.find_element_by_xpath('//*[@id="search"]/span/div/span/h1/div/div[1]/div/div/span[1]').text
         count = count.split(' ')[-3].replace(',','')
         soup = BeautifulSoup(driver.page_source, "html.parser")
