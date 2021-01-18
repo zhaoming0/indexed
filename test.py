@@ -19,7 +19,7 @@ import pandas as pd
 import sys
 import xlrd
 
-nowTime = datetime.datetime.now().strftime('%Y%m%d%H%M')
+nowTime = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-')
 chrome_options = webdriver.ChromeOptions()
 # chrome_options.add_argument('--headless')
 chrome_options.add_argument('log-level=3')
@@ -37,15 +37,18 @@ country = (driver.find_element_by_xpath('//*[@id="geoResult"]/div[1]/dl[1]/dd[4]
 print('\n\nNow test begining country: ' + country + ' city: ' + cityName + ' Zipcode: '+ zipcode + '\n\n')
 
 driver.get('https://www.amazon.com/?currency=USD&language=en_US')
-#time.sleep(10)
-#driver.find_element_by_xpath('//*[@id="nav-packard-glow-loc-icon"]').click()
-#time.sleep(10)
-#driver.find_element_by_xpath('//*[@id="GLUXZipUpdateInput"]').send_keys('10001')
-#time.sleep(10)
-#driver.find_element_by_xpath('//*[@id="GLUXZipUpdate"]/span/input').click()
-#time.sleep(10)
-#driver.get('https://www.amazon.com/')
-#print('Amazon ZIPCode:'+ driver.find_element_by_xpath('//*[@id="glow-ingress-line2"]').text)
+time.sleep(5)
+driver.find_element_by_xpath('//*[@id="nav-packard-glow-loc-icon"]').click()
+time.sleep(5)
+if (country == 'United States (US)'):
+    driver.find_element_by_xpath('//*[@id="GLUXZipUpdateInput"]').send_keys(zipcode)
+else:
+    driver.find_element_by_xpath('//*[@id="GLUXZipUpdateInput"]').send_keys('10001')
+time.sleep(5)
+driver.find_element_by_xpath('//*[@id="GLUXZipUpdate"]/span/input').click()
+time.sleep(5)
+driver.get('https://www.amazon.com/')
+print('\n Amazon ZIPCode:'+ driver.find_element_by_xpath('//*[@id="glow-ingress-line2"]').text)
 
 driver.execute_script("document.body.style.zoom='0.9'")
 
@@ -101,4 +104,16 @@ for keys in col1:
         else:
             banded='N'
         print(':Keyword: '+ keyword +' :Index: '+ indexed +' :Band: '+banded+' :Number: '+ count)
+        if (keyword not in final_result):
+            final_result[keyword] = [0,0,0]
+            final_result[keyword][0] = indexed
+            final_result[keyword][1] = banded
+            final_result[keyword][2] = count
 driver.quit()
+for k,v in final_result.items():
+    print('key:',k,v)
+pf = pd.DataFrame(final_result)
+pf = pd.DataFrame(pf.values.T, index= pf.columns, columns=pf.index)
+file_path = pd.ExcelWriter(nowTime+'indexed.xlsx')
+pf.to_excel(file_path,encoding='utf-8',index=True)
+file_path.save()
