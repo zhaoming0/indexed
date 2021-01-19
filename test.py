@@ -84,12 +84,15 @@ for keys in col1:
         driver.get('https://www.amazon.com/' + linkStr + '&language=en_US')
         time.sleep(5)
         soup = BeautifulSoup(driver.page_source, "html.parser")
-        asin = soup.find_all(href=re.compile(ASIN))
-        if len(asin):
-            indexed='Y'
-        else:
-            indexed='N'
-        soup=''
+        for asin in soup.find_all(href=re.compile(ASIN)):
+            links = str(asin.get('href'))
+            asin_dp = 'dp/'+ASIN
+            if(asin_dp in links):
+                indexed = 'Y'
+                break
+            else:
+                indexed = 'N'
+
         driver.get('https://www.amazon.com/' + bandlinkStr + '&language=en_US')
         time.sleep(5)
         count = driver.find_element_by_xpath('//*[@id="search"]/span/div/span/h1/div/div[1]/div/div/span[1]').text
