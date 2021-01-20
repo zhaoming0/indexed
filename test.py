@@ -26,7 +26,7 @@ chrome_options.add_argument('log-level=3')
 # chrome_options.add_argument('--disable-gpu')
 chrome_options.add_argument('--ignore-certificate-errors')
 # chrome_options.add_argument('--disable-images')
-chrome_options.add_argument('--start-maximized')
+# chrome_options.add_argument('--start-maximized')
 
 driver = webdriver.Chrome(chrome_options=chrome_options)
 driver.get('https://tools.keycdn.com/geo')
@@ -74,7 +74,7 @@ for keys in col1:
             linkStr = linkStr +lineToList[a] + '+'
         linkStr[:-1]
         counts = 1 + counts
-        driver.maximize_window()
+        # driver.maximize_window()
         keyword = linkStr.replace('+', ' ')[4:]
         bandlinkStr = linkStr
         linkStr = list(linkStr)
@@ -117,6 +117,6 @@ for k,v in final_result.items():
     print('key:',k,v)
 pf = pd.DataFrame(final_result)
 pf = pd.DataFrame(pf.values.T, index= pf.columns, columns=pf.index)
-file_path = pd.ExcelWriter(nowTime+'indexed.xlsx')
+file_path = pd.ExcelWriter(nowTime+ASIN+'indexed.xlsx')
 pf.to_excel(file_path,encoding='utf-8',index=True)
 file_path.save()
