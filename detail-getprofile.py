@@ -21,20 +21,20 @@ import xlrd
 
 nowTime = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-')
 chrome_options = webdriver.ChromeOptions()
-# chrome_options.add_argument('--headless')
+chrome_options.add_argument('--headless')
 chrome_options.add_argument('log-level=3')
 # chrome_options.add_argument('--disable-gpu')
 chrome_options.add_argument('--ignore-certificate-errors')
-# chrome_options.add_argument('--disable-images')
+chrome_options.add_argument('--disable-images')
 # chrome_options.add_argument('--start-maximized')
 
 driver = webdriver.Chrome(chrome_options=chrome_options)
-driver.get('https://tools.keycdn.com/geo')
-time.sleep(5)
-cityName = (driver.find_element_by_xpath('//*[@id="geoResult"]/div[1]/dl[1]/dd[1]').text)
-zipcode = (driver.find_element_by_xpath('//*[@id="geoResult"]/div[1]/dl[1]/dd[3]').text)
-country = (driver.find_element_by_xpath('//*[@id="geoResult"]/div[1]/dl[1]/dd[4]').text)
-print('\n\nNow test begining country: ' + country + ' city: ' + cityName + ' Zipcode: '+ zipcode + '\n\n')
+# driver.get('https://tools.keycdn.com/geo')
+# time.sleep(5)
+# cityName = (driver.find_element_by_xpath('//*[@id="geoResult"]/div[1]/dl[1]/dd[1]').text)
+# zipcode = (driver.find_element_by_xpath('//*[@id="geoResult"]/div[1]/dl[1]/dd[3]').text)
+# country = (driver.find_element_by_xpath('//*[@id="geoResult"]/div[1]/dl[1]/dd[4]').text)
+# print('\n\nNow test begining country: ' + country + ' city: ' + cityName + ' Zipcode: '+ zipcode + '\n\n')
 
 driver.get('https://www.amazon.com/?currency=USD&language=en_US')
 # time.sleep(15)
@@ -51,7 +51,7 @@ driver.get('https://www.amazon.com/?currency=USD&language=en_US')
 # # print('\n Amazon ZIPCode:'+ driver.find_element_by_xpath('//*[@id="glow-ingress-line2"]').text)
 
 final_result = {}
-for i in range (1,101):
+for i in range (1,1001):
     driver.get('https://www.amazon.com/hz/leaderboard/top-reviewers/ref=cm_cr_tr_link_'+str(i)+'?page='+str(i))
     time.sleep(5)
     print(str(i))
@@ -65,7 +65,7 @@ for i in range (1,101):
             helpfulVotes = driver.find_element_by_xpath(helpfulVotesPath).text
             xpath = '//*[@id="pha-lb-page"]/div[2]/div/div/table/tbody/tr['+ str(an) +']/td[3]/a[1]'
             driver.find_element_by_xpath(xpath).click()
-            time.sleep(3)
+            time.sleep(5)
             hearts =       driver.find_element_by_xpath('//*[@id="profile_v5"]/div/div/div[4]/div[2]/div[1]/div[2]/div/div[3]/a/div/div[1]/span').text
             idealists =    driver.find_element_by_xpath('//*[@id="profile_v5"]/div/div/div[4]/div[2]/div[1]/div[2]/div/div[4]/a/div/div[1]/span').text
         else:
@@ -73,7 +73,7 @@ for i in range (1,101):
             helpfulVotes = 0
             xpath = '//*[@id="pha-lb-page"]/div[2]/div/div/table/tbody/tr['+ str(an) +']/td[3]/a[1]'
             driver.find_element_by_xpath(xpath).click()
-            time.sleep(3)
+            time.sleep(5)
             hearts = 0
             idealists = 0
 
@@ -131,6 +131,6 @@ driver.quit()
 
 pf = pd.DataFrame(final_result)
 pf = pd.DataFrame(pf.values.T, index= pf.columns, columns=pf.index)
-file_path = pd.ExcelWriter('facebook-1-100.xlsx')
+file_path = pd.ExcelWriter('facebook-1-10000.xlsx')
 pf.to_excel(file_path,encoding='utf-8',index=True)
 file_path.save()
