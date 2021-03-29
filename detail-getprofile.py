@@ -18,10 +18,11 @@ import urllib.request
 import pandas as pd
 import sys
 import xlrd
+import shutil
 
 nowTime = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-')
 chrome_options = webdriver.ChromeOptions()
-chrome_options.add_argument('--headless')
+# chrome_options.add_argument('--headless')
 chrome_options.add_argument('log-level=3')
 # chrome_options.add_argument('--disable-gpu')
 chrome_options.add_argument('--ignore-certificate-errors')
@@ -29,32 +30,28 @@ chrome_options.add_argument('--disable-images')
 # chrome_options.add_argument('--start-maximized')
 
 driver = webdriver.Chrome(chrome_options=chrome_options)
-# driver.get('https://tools.keycdn.com/geo')
-# time.sleep(5)
-# cityName = (driver.find_element_by_xpath('//*[@id="geoResult"]/div[1]/dl[1]/dd[1]').text)
-# zipcode = (driver.find_element_by_xpath('//*[@id="geoResult"]/div[1]/dl[1]/dd[3]').text)
-# country = (driver.find_element_by_xpath('//*[@id="geoResult"]/div[1]/dl[1]/dd[4]').text)
-# print('\n\nNow test begining country: ' + country + ' city: ' + cityName + ' Zipcode: '+ zipcode + '\n\n')
 
 driver.get('https://www.amazon.com/?currency=USD&language=en_US')
-# time.sleep(15)
-# driver.find_element_by_xpath('//*[@id="nav-packard-glow-loc-icon"]').click()
-# time.sleep(5)
-# if (country == 'United States (US)'):
-#     driver.find_element_by_xpath('//*[@id="GLUXZipUpdateInput"]').send_keys(zipcode)
-# else:
-#     driver.find_element_by_xpath('//*[@id="GLUXZipUpdateInput"]').send_keys('10001')
-# time.sleep(5)
-# driver.find_element_by_xpath('//*[@id="GLUXZipUpdate"]/span/input').click()
-# time.sleep(5)
-# driver.get('https://www.amazon.com/')
-# # print('\n Amazon ZIPCode:'+ driver.find_element_by_xpath('//*[@id="glow-ingress-line2"]').text)
 
-final_result = {}
-for i in range (1,1001):
+count=1
+file_path = 'topReviewer.xlsx'
+begin = 1
+end = 1001
+if os.path.exists(file_path):
+    newPath = nowTime+file_path
+    # shutil.copy(file_path,newPath)
+    lastLine = pd.read_excel(file_path)
+    lastLine = lastLine.iloc[-1]['rank']
+    begin = (lastLine // 10)
+else:
+    count = 0
+
+
+for i in range (begin,end):
     driver.get('https://www.amazon.com/hz/leaderboard/top-reviewers/ref=cm_cr_tr_link_'+str(i)+'?page='+str(i))
     time.sleep(5)
     print(str(i))
+    tmpResultDic={}
     for an in range(3,13):
         helpfulPercentPath = '//*[@id="pha-lb-page"]/div[2]/div/div/table/tbody/tr['+ str(an) + ']/td[6]'
         helpfulVotesPath = '//*[@id="pha-lb-page"]/div[2]/div/div/table/tbody/tr['+str(an)+']/td[5]'
@@ -92,45 +89,53 @@ for i in range (1,1001):
         number = soup.find_all(href=re.compile('top-reviewers'))
         rank = str(number).split('#')[0].split('=')[-1]
         userName = str(number).split('#')[1].split('"')[0]
-        if userName not in final_result:
-            final_result[userName] = {}
-            final_result[userName]['rank']=rank
-            final_result[userName]['Vine']= vineBadge
-            final_result[userName]['helpPer'] = helpfulPer
-            final_result[userName]['helpfulVotes'] = helpfulVotes
-            final_result[userName]['reviews'] = reviews
-            final_result[userName]['hearts'] = hearts
-            final_result[userName]['idealists'] = idealists
+
+        tmpResultDic[userName] = {}
+        tmpResultDic[userName]['rank']=rank
+        tmpResultDic[userName]['Vine']= vineBadge
+        tmpResultDic[userName]['helpPer'] = helpfulPer
+        tmpResultDic[userName]['helpfulVotes'] = helpfulVotes
+        tmpResultDic[userName]['reviews'] = reviews
+        tmpResultDic[userName]['hearts'] = hearts
+        tmpResultDic[userName]['idealists'] = idealists
             
         if facebook:
             results = str(facebook).split(' ')[1].split("=")[1].strip('"')
-            final_result[userName]['FB'] = results
+            tmpResultDic[userName]['FB'] = results
 
         if twitter:
             results = str(twitter).split(' ')[1].split("=")[1].strip('"')
-            final_result[userName]['TW'] = results
+            tmpResultDic[userName]['TW'] = results
 
         if pinterest:
             results = str(pinterest).split(' ')[1].split("=")[1].strip('"')
-            final_result[userName]['PIN'] = results
+            tmpResultDic[userName]['PIN'] = results
 
         if instagram:
             results = str(instagram).split(' ')[1].split("=")[1].strip('"')
-            final_result[userName]['INS'] = results
+            tmpResultDic[userName]['INS'] = results
 
         if youtube:
             results = str(youtube).split(' ')[1].split("=")[1].strip('"')
-            final_result[userName]['YTB'] = results
+            tmpResultDic[userName]['YTB'] = results
 
         driver.back()
 
-for i,j in final_result.items():
-    if i:
-        print(i,j)
+    if count == 0:
+        pff = pd.DataFrame(tmpResultDic)
+        pff = pd.DataFrame(pff.values.T, index= pff.columns, columns=pff.index)
+        files = pd.ExcelWriter(file_path)
+        pff.to_excel(files,encoding='utf-8',index=True)
+        files.save()
+    else:
+        old = pd.read_excel(file_path,index_col=0)
+        news =  pd.DataFrame(tmpResultDic)
+        news = pd.DataFrame(news.values.T, index= news.columns, columns=news.index)
+        old = old.append(news)
+        old = pd.DataFrame(old)
+        files = pd.ExcelWriter(file_path)
+        old.to_excel(files,encoding='utf-8',index=True)
+        files.save() 
+    count+=1
 driver.quit()
 
-pf = pd.DataFrame(final_result)
-pf = pd.DataFrame(pf.values.T, index= pf.columns, columns=pf.index)
-file_path = pd.ExcelWriter('facebook-1-10000.xlsx')
-pf.to_excel(file_path,encoding='utf-8',index=True)
-file_path.save()
