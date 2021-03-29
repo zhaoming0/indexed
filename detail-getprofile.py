@@ -39,7 +39,7 @@ begin = 1
 end = 1001
 if os.path.exists(file_path):
     newPath = nowTime+file_path
-    # shutil.copy(file_path,newPath)
+    shutil.copy(file_path,newPath)
     lastLine = pd.read_excel(file_path)
     lastLine = lastLine.iloc[-1]['rank']
     begin = (lastLine // 10)
